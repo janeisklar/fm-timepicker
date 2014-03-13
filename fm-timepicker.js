@@ -62,7 +62,7 @@ angular.module( "fm.components" )
              };
            } )
 
-  .controller( "fmTimepickerController", function( $scope ) {
+  .controller( "fmTimepickerController",['$scope', function( $scope ) {
 
                  // Create day of reference
                  $scope.reference = $scope.reference || moment();
@@ -183,7 +183,7 @@ angular.module( "fm.components" )
                    // Calculate how many indices we need to skip for a large jump through our collection.
                    $scope.largeIntervalIndexJump = newLargeIntervalMilliseconds / newIntervalMilliseconds;
                  } )
-               } )
+               }] )
 
   .directive( "fmTimepickerToggle", function() {
                 return {
