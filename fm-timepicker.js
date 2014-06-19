@@ -558,7 +558,8 @@ angular.module( "fm.components" )
            * Open the popup when the input box gets focus.
            */
           inputElement.bind( "focus", function() {
-            openPopup();
+            // Without delay the popup can glitch close itself instantly after being opened.
+            $timeout( openPopup, 150 );
           } );
 
           /**
