@@ -26,6 +26,7 @@
  * @license http://opensource.org/licenses/mit-license.php MIT License
  */
 
+(function(){
 "use strict";
 
 // Declare fmComponents module if it doesn't exist.
@@ -585,3 +586,4 @@ angular.module( "fm.components" )
       }
     }
   ] );
+})();
