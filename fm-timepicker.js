@@ -79,15 +79,18 @@
 			$scope.endTime = $scope.endTime || $scope.reference.endOf( "day" );
 			$scope.interval = $scope.interval || moment.duration( 30, "minutes" );
 			$scope.largeInterval = $scope.largeInterval || moment.duration( 60, "minutes" );
+			$scope.strict = $scope.strict || false;
 
-			// Round the model value up to the next valid time that fits the configured interval.
-			var modelMilliseconds = $scope.ngModel.valueOf();
-			var intervalMilliseconds = $scope.interval.asMilliseconds();
+			if( $scope.strict ) {
+				// Round the model value up to the next valid time that fits the configured interval.
+				var modelMilliseconds = $scope.ngModel.valueOf();
+				var intervalMilliseconds = $scope.interval.asMilliseconds();
 
-			modelMilliseconds -= modelMilliseconds % intervalMilliseconds;
-			modelMilliseconds += intervalMilliseconds;
+				modelMilliseconds -= modelMilliseconds % intervalMilliseconds;
+				modelMilliseconds += intervalMilliseconds;
 
-			$scope.ngModel = moment( modelMilliseconds );
+				$scope.ngModel = moment( modelMilliseconds );
+			}
 
 			/**
 			 * Makes sure that the moment instances we work with all use the same day as reference.
@@ -148,6 +151,17 @@
 					if( time.isSame( model ) ) {
 						break;
 					}
+					// Check if we've already passed the time value that would fit our current model.
+					if( time.isAfter( model ) ) {
+						// If we're in strict mode, set an invalid index.
+						if( $scope.strict ) {
+							$scope.activeIndex = -1;
+						}
+						// If we're not in strict mode, decrease the index to select the previous item (the one we just passed).
+						$scope.activeIndex -= 1;
+						// Now bail out and use whatever index we determined.
+						break;
+					}
 				}
 			};
 			// The index of the last element in our time value collection.
@@ -187,7 +201,7 @@
 				}
 				// Calculate how many indices we need to skip for a large jump through our collection.
 				$scope.largeIntervalIndexJump = newLargeIntervalMilliseconds / newIntervalMilliseconds;
-			} )
+			} );
 		} ] )
 
 		.directive( "fmTimepickerToggle", function() {
@@ -251,13 +265,14 @@
 						interval      : "=?",
 						largeInterval : "=?",
 						isOpen        : "=?",
-						style         : "=?"
+						style         : "=?",
+						strict        : "=?"
 					},
 					controller : "fmTimepickerController",
 					require    : "ngModel",
 					link       : function postLink( scope, element, attributes, controller ) {
 						// Watch our input parameters and re-validate our view when they change.
-						scope.$watchCollection( "[startTime,endTime,interval]", function() {
+						scope.$watchCollection( "[startTime,endTime,interval,strict]", function() {
 							scope.constrainToReference();
 							validateView();
 						} );
@@ -268,7 +283,6 @@
 							scope.findActiveIndex( scope.ngModel );
 						} );
 
-
 						/**
 						 * Invoked when we need to update the view due to a changed model value.
 						 */
@@ -276,7 +290,10 @@
 							// Convert the moment instance we got to a string in our desired format.
 							var time = moment( controller.$modelValue ).format( scope.format );
 							// Check if the given time is valid.
-							var timeValid = checkTimeValueValid( time ) && checkTimeValueWithinBounds( time ) && checkTimeValueFitsInterval( time );
+							var timeValid = checkTimeValueValid( time );
+							if( scope.strict ) {
+								timeValid = timeValid && checkTimeValueWithinBounds( time ) && checkTimeValueFitsInterval( time );
+							}
 
 							if( timeValid ) {
 								// If the time is valid, store the time string in the scope used by the input box.
@@ -303,7 +320,11 @@
 						function validateView() {
 							resetValidity( true );
 							// Check if the string in the input box represents a valid date according to the rules set through parameters in our scope.
-							var timeValid = checkTimeValueValid( scope.time ) && checkTimeValueWithinBounds( scope.time ) && checkTimeValueFitsInterval( scope.time );
+							var timeValid = checkTimeValueValid( scope.time );
+							if( scope.strict ) {
+								timeValid = timeValid && checkTimeValueWithinBounds( scope.time ) && checkTimeValueFitsInterval( scope.time );
+							}
+
 							if( timeValid ) {
 								// If the string is valid, convert it to a moment instance, store in the model and...
 								var newTime = moment( scope.time, scope.format );
