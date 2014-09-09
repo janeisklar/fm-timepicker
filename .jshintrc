@@ -1,0 +1,19 @@
+{
+	"node"      : true,
+	"camelcase" : true,
+	"curly"     : true,
+	"freeze"    : true,
+	"immed"     : true,
+	"indent"    : 2,
+	"newcap"    : true,
+	"nonbsp"    : true,
+	"nonew"     : true,
+	"quotmark"  : "double",
+	"undef"     : true,
+	"strict"    : true,
+	"jquery"    : true,
+	"globals"   : {
+		"angular" : true,
+		"moment"  : true
+	}
+}

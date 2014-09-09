@@ -43,12 +43,12 @@
 					input = moment( input );
 				}
 				return moment( input ).format( format );
-			}
+			};
 		} )
 
 		.filter( "fmTimeInterval", function() {
 			return function( input, start, end, interval ) {
-				if( null == start || null == end ) {
+				if( !start || !end ) {
 					return input;
 				}
 
@@ -194,7 +194,7 @@
 				var newIntervalMilliseconds = newInterval.asMilliseconds();
 				var newLargeIntervalMilliseconds = newLargeInterval.asMilliseconds();
 				// Check if the large interval is a multiple of the interval.
-				if( 0 != ( newLargeIntervalMilliseconds % newIntervalMilliseconds ) ) {
+				if( 0 !== ( newLargeIntervalMilliseconds % newIntervalMilliseconds ) ) {
 					console.warn( "[fm-timepicker] Warning: Large interval is not a multiple of interval! Using internally computed value instead." );
 					$scope.largeInterval = moment.duration( newIntervalMilliseconds * 5 );
 					newLargeIntervalMilliseconds = $scope.largeInterval.asMilliseconds();
@@ -219,7 +219,7 @@
 						}
 					} );
 				}
-			}
+			};
 		} )
 
 		.directive( "fmTimepicker", [
@@ -386,7 +386,7 @@
 								// Calculate how many milliseconds are within the given time interval.
 								var intervalMilliseconds = scope.interval.asMilliseconds();
 								// Check if the modulo operation has a remainder.
-								isValid = ( 0 == ( durationSinceStartTime % intervalMilliseconds ) );
+								isValid = ( 0 === ( durationSinceStartTime % intervalMilliseconds ) );
 							}
 
 							if( !isValid ) {
@@ -400,7 +400,9 @@
 						}
 
 						function ensureUpdatedView() {
-							scope.$root.$$phase || scope.$apply();
+							$timeout( function() {
+								scope.$apply();
+							} );
 
 							// Scroll the selected list item into view if the popup is open.
 							if( scope.isOpen ) {
@@ -607,7 +609,7 @@
 							event.preventDefault();
 						} );
 					}
-				}
+				};
 			}
 		] );
 })();
