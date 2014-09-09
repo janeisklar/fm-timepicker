@@ -614,6 +614,8 @@
 						if( typeof Hamster === "function" ) {
 							Hamster( inputElement[ 0 ] ).wheel( function( event, delta, deltaX, deltaY ) {
 								if( scope.isFocused ) {
+									event.preventDefault();
+
 									scope.activeIndex -= delta;
 									scope.activeIndex = Math.min( scope.largestPossibleIndex, Math.max( 0, scope.activeIndex ) );
 
