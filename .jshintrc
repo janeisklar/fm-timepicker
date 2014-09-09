@@ -5,7 +5,7 @@
 	"freeze"    : true,
 	"immed"     : true,
 	"indent"    : 2,
-	"newcap"    : true,
+	"newcap"    : false,
 	"nonbsp"    : true,
 	"nonew"     : true,
 	"quotmark"  : "double",
@@ -14,6 +14,7 @@
 	"jquery"    : true,
 	"globals"   : {
 		"angular" : true,
+		"Hamster" : true,
 		"moment"  : true
 	}
 }

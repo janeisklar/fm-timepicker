@@ -17,9 +17,13 @@ module.exports = function( grunt ) {
 			},
 
 			copy : {
-				js : {
+				js      : {
 					src  : "src/<%= pkg.name %>.js",
 					dest : "dist/<%= pkg.name %>.js"
+				},
+				hamster : {
+					src  : "bower_components/hamsterjs/hamster.js",
+					dest : "dist/hamster.js"
 				}
 			},
 
@@ -31,8 +35,8 @@ module.exports = function( grunt ) {
 			},
 
 			watch : {
-				files : [ "src/*.js" ],
-				tasks : [ "jshint" ]
+				files : [ "src/*.js", "dist/demo.html" ],
+				tasks : [ "jshint", "copy", "uglify" ]
 			},
 
 			"gh-pages" : {

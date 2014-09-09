@@ -245,7 +245,7 @@
 					"  <div class='dropdown' ng-if='style==\"dropdown\"' ng-class='{open:isOpen}'>" +
 					"    <ul class='dropdown-menu form-control' style='height:auto; max-height:160px; overflow-y:scroll;'>" +
 						// Fill an empty array with time values between start and end time with the given interval, then iterate over that array.
-					"      <li ng-repeat='time in [] | fmTimeInterval:startTime:endTime:interval' ng-click='select(time,$index)' ng-class='{active:(activeIndex==$index)}'>" +
+					"      <li ng-repeat='time in ( $parent.dropDownOptions = ( [] | fmTimeInterval:startTime:endTime:interval ) )' ng-click='select(time,$index)' ng-class='{active:(activeIndex==$index)}'>" +
 						// For each item, check if it is the last item. If it is, communicate the index to a method in the scope.
 					"        {{$last?largestPossibleIndexIs($index):angular.noop()}}" +
 						// Render a link into the list item, with the formatted time value.
@@ -587,6 +587,7 @@
 						inputElement.bind( "focus", function() {
 							// Without delay the popup can glitch close itself instantly after being opened.
 							$timeout( openPopup, 150 );
+							scope.isFocused = true;
 						} );
 
 						/**
@@ -603,11 +604,25 @@
 									validateView();
 								}
 							}, 150 );
+							scope.isFocused = false;
 						} );
 
 						popupListElement.bind( "mousedown", function( event ) {
 							event.preventDefault();
 						} );
+
+						if( typeof Hamster === "function" ) {
+							Hamster( inputElement[ 0 ] ).wheel( function( event, delta, deltaX, deltaY ) {
+								if( scope.isFocused ) {
+									scope.activeIndex -= delta;
+									scope.activeIndex = Math.min( scope.largestPossibleIndex, Math.max( 0, scope.activeIndex ) );
+
+									scope.select( scope.dropDownOptions[ scope.activeIndex ], scope.activeIndex );
+									ensureUpdatedView();
+								}
+							} );
+						}
+
 					}
 				};
 			}
