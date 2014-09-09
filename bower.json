@@ -15,5 +15,10 @@
     "hamsterjs": "~1.0.4",
     "moment": ">=2.5.0",
     "jquery": ">=2.0.3"
-  }
+  },
+  "ignore": [
+    "**/.*",
+    "bower_components",
+    "node_modules"
+  ]
 }
