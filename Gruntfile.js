@@ -16,6 +16,13 @@ module.exports = function( grunt ) {
 				}
 			},
 
+			copy : {
+				js : {
+					src  : "src/<%= pkg.name %>.js",
+					dest : "dist/<%= pkg.name %>.js"
+				}
+			},
+
 			uglify : {
 				js : {
 					src  : "src/<%= pkg.name %>.js",
@@ -26,13 +33,22 @@ module.exports = function( grunt ) {
 			watch : {
 				files : [ "src/*.js" ],
 				tasks : [ "jshint" ]
+			},
+
+			"gh-pages" : {
+				options : {
+					base : "dist"
+				},
+				src     : [ "**" ]
 			}
 		}
 	);
 
+	grunt.loadNpmTasks( "grunt-contrib-copy" );
 	grunt.loadNpmTasks( "grunt-contrib-jshint" );
 	grunt.loadNpmTasks( "grunt-contrib-uglify" );
 	grunt.loadNpmTasks( "grunt-contrib-watch" );
+	grunt.loadNpmTasks( "grunt-gh-pages" );
 
-	grunt.registerTask( "default", [ "jshint", "uglify" ] );
+	grunt.registerTask( "default", [ "jshint", "copy", "uglify" ] );
 };
