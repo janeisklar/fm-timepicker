@@ -70,7 +70,7 @@
 		.controller( "fmTimepickerController", [ "$scope", function( $scope ) {
 
 			// Create day of reference
-			$scope.reference = $scope.reference || moment();
+			$scope.reference = $scope.reference ? moment( $scope.reference ) : moment();
 
 			$scope.style = $scope.style || "dropdown";
 			$scope.isOpen = $scope.isOpen || false;
