@@ -1,7 +1,7 @@
 {
   "name": "fm-timepicker",
-  "description": "HARTWIG Fair Management Time Picker Component",
-  "version": "2.1.3",
+  "description": "FairManager Time Picker Component",
+  "version": "2.2.0",
   "homepage": "https://github.com/hartwig-at/fm-timepicker",
   "authors": [
     "Oliver Salzburg <oliver.salzburg@gmail.com>"
