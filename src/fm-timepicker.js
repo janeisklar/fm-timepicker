@@ -74,7 +74,7 @@
 
 			$scope.style = $scope.style || "dropdown";
 			$scope.isOpen = $scope.isOpen || false;
-			$scope.format = $scope.format || "HH:mm";
+			$scope.format = $scope.format || "LT";
 			$scope.startTime = $scope.startTime || moment( $scope.reference ).startOf( "day" );
 			$scope.endTime = $scope.endTime || moment( $scope.reference ).endOf( "day" );
 			$scope.interval = $scope.interval || moment.duration( 30, "minutes" );
