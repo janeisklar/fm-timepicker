@@ -80,6 +80,7 @@
 			$scope.interval = $scope.interval || moment.duration( 30, "minutes" );
 			$scope.largeInterval = $scope.largeInterval || moment.duration( 60, "minutes" );
 			$scope.strict = $scope.strict || false;
+			$scope.btnClass = $scope.btnClass || "btn-default";
 
 			if( $scope.strict ) {
 				// Round the model value up to the next valid time that fits the configured interval.
@@ -228,16 +229,16 @@
 					template   : "<div>" +
 					"  <div class='input-group'>" +
 					"    <span class='input-group-btn' ng-if='style==\"sequential\"'>" +
-					"      <button type='button' class='btn btn-default' ng-click='decrement()' ng-disabled='activeIndex==0'>" +
+					"      <button type='button' class='btn {{btnClass}}' ng-click='decrement()' ng-disabled='activeIndex==0'>" +
 					"        <span class='glyphicon glyphicon-minus'></span>" +
 					"      </button>" +
 					"    </span>" +
 					"    <input type='text' class='form-control' ng-model='time' ng-keyup='handleKeyboardInput($event)' ng-change='update()'>" +
 					"    <span class='input-group-btn'>" +
-					"      <button type='button' class='btn btn-default' ng-if='style==\"sequential\"' ng-click='increment()' ng-disabled='activeIndex==largestPossibleIndex'>" +
+					"      <button type='button' class='btn {{btnClass}}' ng-if='style==\"sequential\"' ng-click='increment()' ng-disabled='activeIndex==largestPossibleIndex'>" +
 					"        <span class='glyphicon glyphicon-plus'></span>" +
 					"      </button>" +
-					"      <button type='button' class='btn btn-default' ng-if='style==\"dropdown\"' ng-class='{active:isOpen}' fm-timepicker-toggle>" +
+					"      <button type='button' class='btn {{btnClass}}' ng-if='style==\"dropdown\"' ng-class='{active:isOpen}' fm-timepicker-toggle>" +
 					"        <span class='glyphicon glyphicon-time'></span>" +
 					"      </button>" +
 					"    </span>" +
@@ -266,7 +267,8 @@
 						largeInterval : "=?",
 						isOpen        : "=?",
 						style         : "=?",
-						strict        : "=?"
+						strict        : "=?",
+						btnClass      : "=?"
 					},
 					controller : "fmTimepickerController",
 					require    : "ngModel",
