@@ -244,7 +244,7 @@
 					"    </span>" +
 					"  </div>" +
 					"  <div class='dropdown' ng-if='style==\"dropdown\"' ng-class='{open:isOpen}'>" +
-					"    <ul class='dropdown-menu form-control' style='height:auto; max-height:160px; overflow-y:scroll;'>" +
+					"    <ul class='dropdown-menu form-control' style='height:auto; max-height:160px; overflow-y:scroll;' ng-mousedown=\"handleListClick($event)\">" +
 						// Fill an empty array with time values between start and end time with the given interval, then iterate over that array.
 					"      <li ng-repeat='time in ( $parent.dropDownOptions = ( [] | fmTimeInterval:startTime:endTime:interval ) )' ng-click='select(time,$index)' ng-class='{active:(activeIndex==$index)}'>" +
 						// For each item, check if it is the last item. If it is, communicate the index to a method in the scope.
@@ -461,6 +461,14 @@
 								scope.isOpen = false;
 								ensureUpdatedView();
 							}
+						};
+
+						scope.handleListClick = function handleListClick( $event ) {
+							// When the list scrollbar is clicked, this can cause the list to lose focus.
+							// Preventing the default behavior here has no undesired effects, it just stops
+							// the input from losing focus.
+							$event.preventDefault();
+							return false;
 						};
 
 						/**
