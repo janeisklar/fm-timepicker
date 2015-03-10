@@ -22,7 +22,7 @@
  * Created: 2014-01-07 15:49
  *
  * @author Oliver Salzburg
- * @copyright Copyright (C) 2014, HARTWIG Communication & Events
+ * @copyright Copyright (C) 2015, HARTWIG Communication & Events GmbH & Co. KG
  * @license http://opensource.org/licenses/mit-license.php MIT License
  */
 
