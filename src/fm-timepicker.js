@@ -329,12 +329,27 @@
 
 							if( timeValid ) {
 								// If the string is valid, convert it to a moment instance, store in the model and...
-								var newTime = moment( scope.time, scope.format );
+								var newTime;
+								if( moment.tz ) {
+									newTime = moment.tz(
+										scope.time,
+										scope.format,
+										scope.reference.tz() );
+								} else {
+									newTime = moment( scope.time, scope.format );
+								}
 								newTime = scope.constrainToReference( newTime );
 								controller.$setViewValue( newTime );
 								// ...convert it back to a string in our desired format.
 								// This allows the user to input any partial format that moment accepts and we'll convert it to the format we expect.
-								scope.time = moment( scope.time, scope.format ).format( scope.format );
+								if( moment.tz ) {
+									scope.time = moment.tz(
+										scope.time,
+										scope.format,
+										scope.reference.tz() ).format( scope.format );
+								} else {
+									scope.time = moment( scope.time, scope.format ).format( scope.format );
+								}
 							}
 						}
 
@@ -344,7 +359,14 @@
 						 * @returns {boolean} true if the string is a valid time; false otherwise.
 						 */
 						function checkTimeValueValid( timeString ) {
-							var time = timeString ? moment( timeString, scope.format ) : moment.invalid();
+							var time;
+							if( moment.tz ) {
+								time = timeString ? moment.tz( timeString,
+									scope.format,
+									scope.reference.tz() ) : moment.invalid();
+							} else {
+								time = timeString ? moment( timeString, scope.format ) : moment.invalid();
+							}
 							if( !time.isValid() ) {
 								controller.$setValidity( "time", false );
 								controller.$setViewValue( null );
@@ -361,7 +383,14 @@
 						 * @returns {boolean} true if the string represents a valid time and the time is within the defined bounds; false otherwise.
 						 */
 						function checkTimeValueWithinBounds( timeString ) {
-							var time = timeString ? moment( timeString, scope.format ) : moment.invalid();
+							var time;
+							if( moment.tz ) {
+								time = timeString ? moment( timeString,
+									scope.format,
+									scope.reference.tz() ) : moment.invalid();
+							} else {
+								time = timeString ? moment( timeString, scope.format ) : moment.invalid();
+							}
 							time = scope.constrainToReference( time );
 							if( !time.isValid() || time.isBefore( scope.startTime ) || time.isAfter( scope.endTime ) ) {
 								controller.$setValidity( "bounds", false );
@@ -379,7 +408,14 @@
 						 * @returns {boolean} true if the string represents a valid time and that time lies on an interval boundary; false otherwise.
 						 */
 						function checkTimeValueFitsInterval( timeString ) {
-							var time = timeString ? moment( timeString, scope.format ) : moment.invalid();
+							var time;
+							if( moment.tz ) {
+								time = timeString ? moment( timeString,
+									scope.format,
+									scope.reference.tz() ) : moment.invalid();
+							} else {
+								time = timeString ? moment( timeString, scope.format ) : moment.invalid();
+							}
 							// Check first if the time string could be parsed as a valid timestamp.
 							var isValid = time.isValid();
 							if( isValid ) {
@@ -478,7 +514,12 @@
 						 */
 						scope.select = function( timestamp, elementIndex ) {
 							// Construct a moment instance from the UNIX offset.
-							var time = moment( timestamp );
+							var time;
+							if( moment.tz ) {
+								time = timeString ? moment( timestamp, scope.reference.tz() ) : moment.invalid();
+							} else {
+								time = timeString ? moment( timestamp ) : moment.invalid();
+							}
 							// Format the time to store it in the input box.
 							scope.time = time.format( scope.format );
 
@@ -519,7 +560,14 @@
 						scope.update = function() {
 							var timeValid = checkTimeValueValid( scope.time ) && checkTimeValueWithinBounds( scope.time );
 							if( timeValid ) {
-								var newTime = moment( scope.time, scope.format );
+								var newTime;
+								if( moment.tz ) {
+									newTime = timeString ? moment( scope.time,
+										scope.format,
+										scope.reference.tz() ) : moment.invalid();
+								} else {
+									newTime = timeString ? moment( scope.time, scope.format ) : moment.invalid();
+								}
 								newTime = scope.constrainToReference( newTime );
 								controller.$setViewValue( newTime );
 							}
@@ -550,7 +598,8 @@
 									openPopup();
 									scope.modelPreview.add( scope.largeInterval );
 									scope.modelPreview = scope.ensureTimeIsWithinBounds( scope.modelPreview );
-									scope.activeIndex = Math.min( scope.largestPossibleIndex, scope.activeIndex + scope.largeIntervalIndexJump );
+									scope.activeIndex = Math.min( scope.largestPossibleIndex,
+										scope.activeIndex + scope.largeIntervalIndexJump );
 									break;
 								case 38:
 									// Up arrow
@@ -627,7 +676,8 @@
 									event.preventDefault();
 
 									scope.activeIndex -= delta;
-									scope.activeIndex = Math.min( scope.largestPossibleIndex, Math.max( 0, scope.activeIndex ) );
+									scope.activeIndex = Math.min( scope.largestPossibleIndex,
+										Math.max( 0, scope.activeIndex ) );
 
 									scope.select( scope.dropDownOptions[ scope.activeIndex ], scope.activeIndex );
 									ensureUpdatedView();
