@@ -516,9 +516,9 @@
 							// Construct a moment instance from the UNIX offset.
 							var time;
 							if( moment.tz ) {
-								time = timeString ? moment( timestamp, scope.reference.tz() ) : moment.invalid();
+								time = moment( timestamp, scope.reference.tz() );
 							} else {
-								time = timeString ? moment( timestamp ) : moment.invalid();
+								time = moment( timestamp );
 							}
 							// Format the time to store it in the input box.
 							scope.time = time.format( scope.format );
@@ -562,11 +562,11 @@
 							if( timeValid ) {
 								var newTime;
 								if( moment.tz ) {
-									newTime = timeString ? moment( scope.time,
+									newTime = moment( scope.time,
 										scope.format,
-										scope.reference.tz() ) : moment.invalid();
+										scope.reference.tz() );
 								} else {
-									newTime = timeString ? moment( scope.time, scope.format ) : moment.invalid();
+									newTime = moment( scope.time, scope.format );
 								}
 								newTime = scope.constrainToReference( newTime );
 								controller.$setViewValue( newTime );
