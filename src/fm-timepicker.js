@@ -361,7 +361,8 @@
 						function checkTimeValueValid( timeString ) {
 							var time;
 							if( moment.tz ) {
-								time = timeString ? moment.tz( timeString,
+								time = timeString ? moment.tz(
+									timeString,
 									scope.format,
 									scope.reference.tz() ) : moment.invalid();
 							} else {
@@ -385,7 +386,8 @@
 						function checkTimeValueWithinBounds( timeString ) {
 							var time;
 							if( moment.tz ) {
-								time = timeString ? moment( timeString,
+								time = timeString ? moment.tz(
+									timeString,
 									scope.format,
 									scope.reference.tz() ) : moment.invalid();
 							} else {
@@ -410,7 +412,8 @@
 						function checkTimeValueFitsInterval( timeString ) {
 							var time;
 							if( moment.tz ) {
-								time = timeString ? moment( timeString,
+								time = timeString ? moment.tz(
+									timeString,
 									scope.format,
 									scope.reference.tz() ) : moment.invalid();
 							} else {
@@ -516,7 +519,7 @@
 							// Construct a moment instance from the UNIX offset.
 							var time;
 							if( moment.tz ) {
-								time = moment( timestamp, scope.reference.tz() );
+								time = moment( timestamp ).tz( scope.reference.tz() );
 							} else {
 								time = moment( timestamp );
 							}
@@ -562,7 +565,7 @@
 							if( timeValid ) {
 								var newTime;
 								if( moment.tz ) {
-									newTime = moment( scope.time,
+									newTime = moment.tz( scope.time,
 										scope.format,
 										scope.reference.tz() );
 								} else {
