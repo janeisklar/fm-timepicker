@@ -448,9 +448,7 @@
 							// Scroll the selected list item into view if the popup is open.
 							if( scope.isOpen ) {
 								// Use $timeout to give the DOM time to catch up.
-								$timeout( function() {
-									scrollSelectedItemIntoView();
-								} );
+								$timeout( scrollSelectedItemIntoView );
 							}
 						}
 
@@ -479,7 +477,7 @@
 							if( !scope.isOpen ) {
 								scope.isOpen = true;
 								scope.modelPreview = scope.ngModel ? scope.ngModel.clone() : scope.startTime.clone();
-								ensureUpdatedView();
+								$timeout( ensureUpdatedView );
 							}
 						}
 
@@ -498,7 +496,7 @@
 									}, 200 );
 							} else {
 								scope.isOpen = false;
-								ensureUpdatedView();
+								$timeout( ensureUpdatedView );
 							}
 						};
 
@@ -616,7 +614,7 @@
 									break;
 								default:
 							}
-							ensureUpdatedView();
+							$timeout( ensureUpdatedView );
 						};
 
 						/**
@@ -683,7 +681,7 @@
 										Math.max( 0, scope.activeIndex ) );
 
 									scope.select( scope.dropDownOptions[ scope.activeIndex ], scope.activeIndex );
-									ensureUpdatedView();
+									$timeout( ensureUpdatedView );
 								}
 							} );
 						}
