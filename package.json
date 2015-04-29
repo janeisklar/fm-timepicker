@@ -1,6 +1,6 @@
 {
   "name": "fm-timepicker",
-  "version": "3.0.2",
+  "version": "3.0.3",
   "description": "time picker",
   "main": "src/fm-timepicker.js",
   "devDependencies": {
