@@ -82,6 +82,11 @@
 			$scope.strict = $scope.strict || false;
 			$scope.btnClass = $scope.btnClass || "btn-default";
 
+			if( moment.tz ) {
+				$scope.startTime.tz( $scope.reference.tz() );
+				$scope.endTime.tz( $scope.reference.tz() );
+			}
+
 			if( $scope.strict ) {
 				// Round the model value up to the next valid time that fits the configured interval.
 				var modelMilliseconds = $scope.ngModel.valueOf();
@@ -103,6 +108,10 @@
 			 */
 			$scope.constrainToReference = function( day ) {
 				if( day ) {
+					if( moment.tz ) {
+						day.tz( $scope.reference.tz() );
+					}
+
 					if( !day.isSame( $scope.reference, "day" ) ) {
 						day.year( $scope.reference.year() ).month( $scope.reference.month() ).date( $scope.reference.date() );
 					}
