@@ -82,6 +82,11 @@
 			$scope.strict = $scope.strict || false;
 			$scope.btnClass = $scope.btnClass || "btn-default";
 
+			if( moment.tz ) {
+				$scope.startTime.tz( $scope.reference.tz() );
+				$scope.endTime.tz( $scope.reference.tz() );
+			}
+
 			if( $scope.strict ) {
 				// Round the model value up to the next valid time that fits the configured interval.
 				var modelMilliseconds = $scope.ngModel.valueOf();
@@ -103,6 +108,10 @@
 			 */
 			$scope.constrainToReference = function( day ) {
 				if( day ) {
+					if( moment.tz ) {
+						day.tz( $scope.reference.tz() );
+					}
+
 					if( !day.isSame( $scope.reference, "day" ) ) {
 						day.year( $scope.reference.year() ).month( $scope.reference.month() ).date( $scope.reference.date() );
 					}
@@ -233,7 +242,7 @@
 					"        <span class='glyphicon glyphicon-minus'></span>" +
 					"      </button>" +
 					"    </span>" +
-					"    <input type='text' class='form-control' ng-model='time' ng-keyup='handleKeyboardInput($event)' ng-change='update()'>" +
+					"    <input type='text' class='form-control' ng-model='time' ng-keyup='handleKeyboardInput($event)' ng-change='update()' ng-click='handleInputClick()'>" +
 					"    <span class='input-group-btn'>" +
 					"      <button type='button' class='btn {{btnClass}}' ng-if='style==\"sequential\"' ng-click='increment()' ng-disabled='activeIndex==largestPossibleIndex'>" +
 					"        <span class='glyphicon glyphicon-plus'></span>" +
@@ -248,7 +257,8 @@
 						// Fill an empty array with time values between start and end time with the given interval, then iterate over that array.
 					"      <li ng-repeat='time in ( $parent.dropDownOptions = ( [] | fmTimeInterval:startTime:endTime:interval ) )' ng-click='select(time,$index)' ng-class='{active:(activeIndex==$index)}'>" +
 						// For each item, check if it is the last item. If it is, communicate the index to a method in the scope.
-					"        {{$last?largestPossibleIndexIs($index):angular.noop()}}" +
+						// empty string on false instead of noop to avoid false as every other option in angular 1.4.x
+					"        {{$last?largestPossibleIndexIs($index):''}}" +
 						// Render a link into the list item, with the formatted time value.
 					"        <a href='#' ng-click='preventDefault($event)'>{{time|fmTimeFormat:format}}</a>" +
 					"      </li>" +
@@ -498,6 +508,22 @@
 								scope.isOpen = false;
 								$timeout( ensureUpdatedView );
 							}
+						};
+
+						/**
+						 * This function is meant to handle clicking on the time input
+						 * box if it is already focused. Previously nothing would happen
+						 * and you would have to click the button or leave focus and
+						 * reclick to get the popup to open again. Adding this as a click
+						 * event makes it pop open again even if the input is focused.
+						 */
+						scope.handleInputClick = function handleInputClick( $event ) {
+							// bail if we aren't doing a dropdown
+							if (scope.style !== "dropdown") {
+								return;
+							}
+
+							openPopup();
 						};
 
 						scope.handleListClick = function handleListClick( $event ) {
