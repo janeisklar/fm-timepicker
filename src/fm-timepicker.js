@@ -29,7 +29,7 @@
 (function() {
 	"use strict";
 
-// Declare fmComponents module if it doesn't exist.
+	// Declare fmComponents module if it doesn't exist.
 	try {
 		angular.module( "fm.components" );
 	} catch( ignored ) {
@@ -138,6 +138,10 @@
 			 * @returns {Moment} A new time value within the bounds, or the input instance.
 			 */
 			$scope.ensureTimeIsWithinBounds = function( time ) {
+				// We expect "time" to be a Moment instance; otherwise bail.
+				if( !time || !moment.isMoment( time ) ) {
+					return time;
+				}
 				// Constrain model value to be in given bounds.
 				if( time.isBefore( $scope.startTime ) ) {
 					return moment( $scope.startTime );
