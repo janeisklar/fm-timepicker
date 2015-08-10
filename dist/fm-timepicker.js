@@ -361,7 +361,8 @@
 						function checkTimeValueValid( timeString ) {
 							var time;
 							if( moment.tz ) {
-								time = timeString ? moment.tz( timeString,
+								time = timeString ? moment.tz(
+									timeString,
 									scope.format,
 									scope.reference.tz() ) : moment.invalid();
 							} else {
@@ -385,7 +386,8 @@
 						function checkTimeValueWithinBounds( timeString ) {
 							var time;
 							if( moment.tz ) {
-								time = timeString ? moment( timeString,
+								time = timeString ? moment.tz(
+									timeString,
 									scope.format,
 									scope.reference.tz() ) : moment.invalid();
 							} else {
@@ -410,7 +412,8 @@
 						function checkTimeValueFitsInterval( timeString ) {
 							var time;
 							if( moment.tz ) {
-								time = timeString ? moment( timeString,
+								time = timeString ? moment.tz(
+									timeString,
 									scope.format,
 									scope.reference.tz() ) : moment.invalid();
 							} else {
@@ -445,9 +448,7 @@
 							// Scroll the selected list item into view if the popup is open.
 							if( scope.isOpen ) {
 								// Use $timeout to give the DOM time to catch up.
-								$timeout( function() {
-									scrollSelectedItemIntoView();
-								} );
+								$timeout( scrollSelectedItemIntoView );
 							}
 						}
 
@@ -476,7 +477,7 @@
 							if( !scope.isOpen ) {
 								scope.isOpen = true;
 								scope.modelPreview = scope.ngModel ? scope.ngModel.clone() : scope.startTime.clone();
-								ensureUpdatedView();
+								$timeout( ensureUpdatedView );
 							}
 						}
 
@@ -495,7 +496,7 @@
 									}, 200 );
 							} else {
 								scope.isOpen = false;
-								ensureUpdatedView();
+								$timeout( ensureUpdatedView );
 							}
 						};
 
@@ -516,7 +517,7 @@
 							// Construct a moment instance from the UNIX offset.
 							var time;
 							if( moment.tz ) {
-								time = moment( timestamp, scope.reference.tz() );
+								time = moment( timestamp ).tz( scope.reference.tz() );
 							} else {
 								time = moment( timestamp );
 							}
@@ -562,7 +563,7 @@
 							if( timeValid ) {
 								var newTime;
 								if( moment.tz ) {
-									newTime = moment( scope.time,
+									newTime = moment.tz( scope.time,
 										scope.format,
 										scope.reference.tz() );
 								} else {
@@ -613,7 +614,7 @@
 									break;
 								default:
 							}
-							ensureUpdatedView();
+							$timeout( ensureUpdatedView );
 						};
 
 						/**
@@ -680,7 +681,7 @@
 										Math.max( 0, scope.activeIndex ) );
 
 									scope.select( scope.dropDownOptions[ scope.activeIndex ], scope.activeIndex );
-									ensureUpdatedView();
+									$timeout( ensureUpdatedView );
 								}
 							} );
 						}
