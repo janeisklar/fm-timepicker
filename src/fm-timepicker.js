@@ -98,7 +98,7 @@
 			 * We need this because we might construct moment instances from all kinds of sources,
 			 * in the time picker, we only care about time values though and we still want to compare
 			 * them through the moment mechanics (which respect the full date).
-			 * @param {Moment} [day] If day is given, it will be constrained to the refence day, otherwise all members will be constrained.
+			 * @param {Moment} [day] If day is given, it will be constrained to the reference day, otherwise all members will be constrained.
 			 * @return {Moment} If day was provided as parameter, it will be returned as well.
 			 */
 			$scope.constrainToReference = function( day ) {
