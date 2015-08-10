@@ -29,7 +29,7 @@
 (function() {
 	"use strict";
 
-// Declare fmComponents module if it doesn't exist.
+	// Declare fmComponents module if it doesn't exist.
 	try {
 		angular.module( "fm.components" );
 	} catch( ignored ) {
@@ -103,7 +103,7 @@
 			 * We need this because we might construct moment instances from all kinds of sources,
 			 * in the time picker, we only care about time values though and we still want to compare
 			 * them through the moment mechanics (which respect the full date).
-			 * @param {Moment} [day] If day is given, it will be constrained to the refence day, otherwise all members will be constrained.
+			 * @param {Moment} [day] If day is given, it will be constrained to the reference day, otherwise all members will be constrained.
 			 * @return {Moment} If day was provided as parameter, it will be returned as well.
 			 */
 			$scope.constrainToReference = function( day ) {
@@ -138,6 +138,10 @@
 			 * @returns {Moment} A new time value within the bounds, or the input instance.
 			 */
 			$scope.ensureTimeIsWithinBounds = function( time ) {
+				// We expect "time" to be a Moment instance; otherwise bail.
+				if( !time || !moment.isMoment( time ) ) {
+					return time;
+				}
 				// Constrain model value to be in given bounds.
 				if( time.isBefore( $scope.startTime ) ) {
 					return moment( $scope.startTime );
