@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2014, HARTWIG Communication & Events
+ * Copyright (C) 2014-2015, HARTWIG Communication & Events GmbH & Co. KG
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
@@ -21,15 +21,17 @@
  *
  * Created: 2014-01-07 15:49
  *
- * @author Oliver Salzburg
- * @copyright Copyright (C) 2014, HARTWIG Communication & Events
+ * @author Oliver Salzburg <oliver.salzburg@gmail.com>
+ * @copyright Copyright (C) 2014-2015, HARTWIG Communication & Events GmbH & Co. KG
  * @license http://opensource.org/licenses/mit-license.php MIT License
  */
 
 (function() {
 	"use strict";
 
-// Declare fmComponents module if it doesn't exist.
+	/* globals $, angular, Hamster, moment */
+
+	// Declare fmComponents module if it doesn't exist.
 	try {
 		angular.module( "fm.components" );
 	} catch( ignored ) {
@@ -52,8 +54,8 @@
 					return input;
 				}
 
-				start = moment( start );
-				end = moment( end );
+				start    = moment( start );
+				end      = moment( end );
 				interval = interval || moment.duration( 30, "minutes" );
 
 				for( var time = start.clone(); +time <= +end; time.add( interval ) ) {
@@ -70,20 +72,26 @@
 		.controller( "fmTimepickerController", [ "$scope", function( $scope ) {
 
 			// Create day of reference
-			$scope.reference = $scope.reference || moment();
+			$scope.reference = $scope.reference ? moment( $scope.reference ) : moment();
 
-			$scope.style = $scope.style || "dropdown";
-			$scope.isOpen = $scope.isOpen || false;
-			$scope.format = $scope.format || "HH:mm";
-			$scope.startTime = $scope.startTime || $scope.reference.startOf( "day" );
-			$scope.endTime = $scope.endTime || $scope.reference.endOf( "day" );
-			$scope.interval = $scope.interval || moment.duration( 30, "minutes" );
+			$scope.style         = $scope.style || "dropdown";
+			$scope.isOpen        = $scope.isOpen || false;
+			$scope.format        = $scope.format || "LT";
+			$scope.startTime     = $scope.startTime || moment( $scope.reference ).startOf( "day" );
+			$scope.endTime       = $scope.endTime || moment( $scope.reference ).endOf( "day" );
+			$scope.interval      = $scope.interval || moment.duration( 30, "minutes" );
 			$scope.largeInterval = $scope.largeInterval || moment.duration( 60, "minutes" );
-			$scope.strict = $scope.strict || false;
+			$scope.strict        = $scope.strict || false;
+			$scope.btnClass      = $scope.btnClass || "btn-default";
+
+			if( moment.tz ) {
+				$scope.startTime.tz( $scope.reference.tz() );
+				$scope.endTime.tz( $scope.reference.tz() );
+			}
 
 			if( $scope.strict ) {
 				// Round the model value up to the next valid time that fits the configured interval.
-				var modelMilliseconds = $scope.ngModel.valueOf();
+				var modelMilliseconds    = $scope.ngModel.valueOf();
 				var intervalMilliseconds = $scope.interval.asMilliseconds();
 
 				modelMilliseconds -= modelMilliseconds % intervalMilliseconds;
@@ -97,11 +105,15 @@
 			 * We need this because we might construct moment instances from all kinds of sources,
 			 * in the time picker, we only care about time values though and we still want to compare
 			 * them through the moment mechanics (which respect the full date).
-			 * @param {Moment} [day] If day is given, it will be constrained to the refence day, otherwise all members will be constrained.
+			 * @param {Moment} [day] If day is given, it will be constrained to the reference day, otherwise all members will be constrained.
 			 * @return {Moment} If day was provided as parameter, it will be returned as well.
 			 */
 			$scope.constrainToReference = function( day ) {
 				if( day ) {
+					if( moment.tz ) {
+						day.tz( $scope.reference.tz() );
+					}
+
 					if( !day.isSame( $scope.reference, "day" ) ) {
 						day.year( $scope.reference.year() ).month( $scope.reference.month() ).date( $scope.reference.date() );
 					}
@@ -128,6 +140,10 @@
 			 * @returns {Moment} A new time value within the bounds, or the input instance.
 			 */
 			$scope.ensureTimeIsWithinBounds = function( time ) {
+				// We expect "time" to be a Moment instance; otherwise bail.
+				if( !time || !moment.isMoment( time ) ) {
+					return time;
+				}
 				// Constrain model value to be in given bounds.
 				if( time.isBefore( $scope.startTime ) ) {
 					return moment( $scope.startTime );
@@ -145,6 +161,10 @@
 			 */
 			$scope.findActiveIndex = function( model ) {
 				$scope.activeIndex = 0;
+				if( !model ) {
+					return;
+				}
+
 				// We step through each possible value instead of calculating the index directly,
 				// to make sure we account for DST changes in the reference day.
 				for( var time = $scope.startTime.clone(); +time <= +$scope.endTime; time.add( $scope.interval ), ++$scope.activeIndex ) {
@@ -174,29 +194,32 @@
 			// Check the supplied interval for validity.
 			$scope.$watch( "interval", function( newInterval, oldInterval ) {
 				if( newInterval.asMilliseconds() < 1 ) {
-					console.error( "[fm-timepicker] Error: Supplied interval length is smaller than 1ms! Reverting to default." );
+					console.error(
+						"[fm-timepicker] Error: Supplied interval length is smaller than 1ms! Reverting to default." );
 					$scope.interval = moment.duration( 30, "minutes" );
 				}
 			} );
 			// Check the supplied large interval for validity.
 			$scope.$watch( "largeInterval", function( newInterval, oldInterval ) {
 				if( newInterval.asMilliseconds() < 10 ) {
-					console.error( "[fm-timepicker] Error: Supplied large interval length is smaller than 10ms! Reverting to default." );
+					console.error(
+						"[fm-timepicker] Error: Supplied large interval length is smaller than 10ms! Reverting to default." );
 					$scope.largeInterval = moment.duration( 60, "minutes" );
 				}
 			} );
 			// Watch the given interval values.
 			$scope.$watchCollection( "[interval,largeInterval]", function( newValues ) {
 				// Pick array apart.
-				var newInterval = newValues[ 0 ];
+				var newInterval      = newValues[ 0 ];
 				var newLargeInterval = newValues[ 1 ];
 				// Get millisecond values for the intervals.
-				var newIntervalMilliseconds = newInterval.asMilliseconds();
+				var newIntervalMilliseconds      = newInterval.asMilliseconds();
 				var newLargeIntervalMilliseconds = newLargeInterval.asMilliseconds();
 				// Check if the large interval is a multiple of the interval.
 				if( 0 !== ( newLargeIntervalMilliseconds % newIntervalMilliseconds ) ) {
-					console.warn( "[fm-timepicker] Warning: Large interval is not a multiple of interval! Using internally computed value instead." );
-					$scope.largeInterval = moment.duration( newIntervalMilliseconds * 5 );
+					console.warn(
+						"[fm-timepicker] Warning: Large interval is not a multiple of interval! Using internally computed value instead." );
+					$scope.largeInterval         = moment.duration( newIntervalMilliseconds * 5 );
 					newLargeIntervalMilliseconds = $scope.largeInterval.asMilliseconds();
 				}
 				// Calculate how many indices we need to skip for a large jump through our collection.
@@ -226,37 +249,37 @@
 			"$timeout", function( $timeout ) {
 				return {
 					template   : "<div>" +
-					"  <div class='input-group'>" +
-					"    <span class='input-group-btn' ng-if='style==\"sequential\"'>" +
-					"      <button type='button' class='btn btn-default' ng-click='decrement()' ng-disabled='activeIndex==0'>" +
-					"        <span class='glyphicon glyphicon-minus'></span>" +
-					"      </button>" +
-					"    </span>" +
-					"    <input type='text' class='form-control' ng-model='time' ng-keyup='handleKeyboardInput($event)' ng-change='update()'>" +
-					"    <span class='input-group-btn'>" +
-					"      <button type='button' class='btn btn-default' ng-if='style==\"sequential\"' ng-click='increment()' ng-disabled='activeIndex==largestPossibleIndex'>" +
-					"        <span class='glyphicon glyphicon-plus'></span>" +
-					"      </button>" +
-					"      <button type='button' class='btn btn-default' ng-if='style==\"dropdown\"' ng-class='{active:isOpen}' fm-timepicker-toggle>" +
-					"        <span class='glyphicon glyphicon-time'></span>" +
-					"      </button>" +
-					"    </span>" +
-					"  </div>" +
-					"  <div class='dropdown' ng-if='style==\"dropdown\"' ng-class='{open:isOpen}'>" +
-					"    <ul class='dropdown-menu form-control' style='height:auto; max-height:160px; overflow-y:scroll;'>" +
-						// Fill an empty array with time values between start and end time with the given interval, then iterate over that array.
-					"      <li ng-repeat='time in [] | fmTimeInterval:startTime:endTime:interval' ng-click='select(time,$index)' ng-class='{active:(activeIndex==$index)}'>" +
-						// For each item, check if it is the last item. If it is, communicate the index to a method in the scope.
-					"        {{$last?largestPossibleIndexIs($index):angular.noop()}}" +
-						// Render a link into the list item, with the formatted time value.
-					"        <a href='#' ng-click='preventDefault($event)'>{{time|fmTimeFormat:format}}</a>" +
-					"      </li>" +
-					"    </ul>" +
-					"  </div>" +
-					"</div>",
-					replace    : true,
-					restrict   : "E",
-					scope      : {
+					           "  <div class='input-group'>" +
+					           "    <span class='input-group-btn' ng-if='style==\"sequential\"'>" +
+					           "      <button type='button' class='btn {{btnClass}}' ng-click='decrement()' ng-disabled='activeIndex==0'>" +
+					           "        <span class='glyphicon glyphicon-minus'></span>" +
+					           "      </button>" +
+					           "    </span>" +
+					           "    <input type='text' class='form-control' ng-model='time' ng-keyup='handleKeyboardInput($event)' ng-change='update()'>" +
+					           "    <span class='input-group-btn'>" +
+					           "      <button type='button' class='btn {{btnClass}}' ng-if='style==\"sequential\"' ng-click='increment()' ng-disabled='activeIndex==largestPossibleIndex'>" +
+					           "        <span class='glyphicon glyphicon-plus'></span>" +
+					           "      </button>" +
+					           "      <button type='button' class='btn {{btnClass}}' ng-if='style==\"dropdown\"' ng-class='{active:isOpen}' fm-timepicker-toggle>" +
+					           "        <span class='glyphicon glyphicon-time'></span>" +
+					           "      </button>" +
+					           "    </span>" +
+					           "  </div>" +
+					           "  <div class='dropdown' ng-if='style==\"dropdown\"' ng-class='{open:isOpen}'>" +
+					           "    <ul class='dropdown-menu form-control' style='height:auto; max-height:160px; overflow-y:scroll;' ng-mousedown=\"handleListClick($event)\">" +
+					           // Fill an empty array with time values between start and end time with the given interval, then iterate over that array.
+					           "      <li ng-repeat='time in ( $parent.dropDownOptions = ( [] | fmTimeInterval:startTime:endTime:interval ) )' ng-click='select(time,$index)' ng-class='{active:(activeIndex==$index)}'>" +
+					           // For each item, check if it is the last item. If it is, communicate the index to a method in the scope.
+					           "        {{$last?largestPossibleIndexIs($index):angular.noop()}}" +
+					           // Render a link into the list item, with the formatted time value.
+					           "        <a href='#' ng-click='preventDefault($event)'>{{time|fmTimeFormat:format}}</a>" +
+					           "      </li>" +
+					           "    </ul>" +
+					           "  </div>" +
+					           "</div>",
+					replace  : true,
+					restrict : "E",
+					scope    : {
 						ngModel       : "=",
 						format        : "=?",
 						startTime     : "=?",
@@ -266,7 +289,8 @@
 						largeInterval : "=?",
 						isOpen        : "=?",
 						style         : "=?",
-						strict        : "=?"
+						strict        : "=?",
+						btnClass      : "=?"
 					},
 					controller : "fmTimepickerController",
 					require    : "ngModel",
@@ -292,7 +316,8 @@
 							// Check if the given time is valid.
 							var timeValid = checkTimeValueValid( time );
 							if( scope.strict ) {
-								timeValid = timeValid && checkTimeValueWithinBounds( time ) && checkTimeValueFitsInterval( time );
+								timeValid = timeValid && checkTimeValueWithinBounds( time ) && checkTimeValueFitsInterval(
+										time );
 							}
 
 							if( timeValid ) {
@@ -311,6 +336,8 @@
 							controller.$setValidity( "time", to );
 							controller.$setValidity( "bounds", to );
 							controller.$setValidity( "interval", to );
+							controller.$setValidity( "start", to );
+							controller.$setValidity( "end", to );
 						}
 
 						/**
@@ -322,17 +349,40 @@
 							// Check if the string in the input box represents a valid date according to the rules set through parameters in our scope.
 							var timeValid = checkTimeValueValid( scope.time );
 							if( scope.strict ) {
-								timeValid = timeValid && checkTimeValueWithinBounds( scope.time ) && checkTimeValueFitsInterval( scope.time );
+								timeValid = timeValid && checkTimeValueWithinBounds( scope.time ) && checkTimeValueFitsInterval(
+										scope.time );
+							}
+
+							if( !scope.startDate.isValid() ) {
+								controller.$setValidity( "start", false );
+							}
+							if( !scope.endDate.isValid() ) {
+								controller.$setValidity( "end", false );
 							}
 
 							if( timeValid ) {
 								// If the string is valid, convert it to a moment instance, store in the model and...
-								var newTime = moment( scope.time, scope.format );
+								var newTime;
+								if( moment.tz ) {
+									newTime = moment.tz(
+										scope.time,
+										scope.format,
+										scope.reference.tz() );
+								} else {
+									newTime = moment( scope.time, scope.format );
+								}
 								newTime = scope.constrainToReference( newTime );
 								controller.$setViewValue( newTime );
 								// ...convert it back to a string in our desired format.
 								// This allows the user to input any partial format that moment accepts and we'll convert it to the format we expect.
-								scope.time = moment( scope.time, scope.format ).format( scope.format );
+								if( moment.tz ) {
+									scope.time = moment.tz(
+										scope.time,
+										scope.format,
+										scope.reference.tz() ).format( scope.format );
+								} else {
+									scope.time = moment( scope.time, scope.format ).format( scope.format );
+								}
 							}
 						}
 
@@ -342,7 +392,15 @@
 						 * @returns {boolean} true if the string is a valid time; false otherwise.
 						 */
 						function checkTimeValueValid( timeString ) {
-							var time = timeString ? moment( timeString, scope.format ) : moment.invalid();
+							var time;
+							if( moment.tz ) {
+								time = timeString ? moment.tz(
+									timeString,
+									scope.format,
+									scope.reference.tz() ) : moment.invalid();
+							} else {
+								time = timeString ? moment( timeString, scope.format ) : moment.invalid();
+							}
 							if( !time.isValid() ) {
 								controller.$setValidity( "time", false );
 								controller.$setViewValue( null );
@@ -359,7 +417,15 @@
 						 * @returns {boolean} true if the string represents a valid time and the time is within the defined bounds; false otherwise.
 						 */
 						function checkTimeValueWithinBounds( timeString ) {
-							var time = timeString ? moment( timeString, scope.format ) : moment.invalid();
+							var time;
+							if( moment.tz ) {
+								time = timeString ? moment.tz(
+									timeString,
+									scope.format,
+									scope.reference.tz() ) : moment.invalid();
+							} else {
+								time = timeString ? moment( timeString, scope.format ) : moment.invalid();
+							}
 							time = scope.constrainToReference( time );
 							if( !time.isValid() || time.isBefore( scope.startTime ) || time.isAfter( scope.endTime ) ) {
 								controller.$setValidity( "bounds", false );
@@ -377,7 +443,15 @@
 						 * @returns {boolean} true if the string represents a valid time and that time lies on an interval boundary; false otherwise.
 						 */
 						function checkTimeValueFitsInterval( timeString ) {
-							var time = timeString ? moment( timeString, scope.format ) : moment.invalid();
+							var time;
+							if( moment.tz ) {
+								time = timeString ? moment.tz(
+									timeString,
+									scope.format,
+									scope.reference.tz() ) : moment.invalid();
+							} else {
+								time = timeString ? moment( timeString, scope.format ) : moment.invalid();
+							}
 							// Check first if the time string could be parsed as a valid timestamp.
 							var isValid = time.isValid();
 							if( isValid ) {
@@ -407,9 +481,7 @@
 							// Scroll the selected list item into view if the popup is open.
 							if( scope.isOpen ) {
 								// Use $timeout to give the DOM time to catch up.
-								$timeout( function() {
-									scrollSelectedItemIntoView();
-								} );
+								$timeout( scrollSelectedItemIntoView );
 							}
 						}
 
@@ -425,7 +497,7 @@
 							// Find the selected list item.
 							var selectedListElement = $( "li.active", popupListElement );
 							// Retrieve offset from the top and height of the list element.
-							var top = selectedListElement.length ? selectedListElement.position().top : 0;
+							var top    = selectedListElement.length ? selectedListElement.position().top : 0;
 							var height = selectedListElement.length ? selectedListElement.outerHeight( true ) : 0;
 							// Scroll the list to bring the selected list element into the view.
 							$( popupListElement ).scrollTop( top - height );
@@ -436,9 +508,9 @@
 						 */
 						function openPopup() {
 							if( !scope.isOpen ) {
-								scope.isOpen = true;
+								scope.isOpen       = true;
 								scope.modelPreview = scope.ngModel ? scope.ngModel.clone() : scope.startTime.clone();
-								ensureUpdatedView();
+								$timeout( ensureUpdatedView );
 							}
 						}
 
@@ -457,8 +529,16 @@
 									}, 200 );
 							} else {
 								scope.isOpen = false;
-								ensureUpdatedView();
+								$timeout( ensureUpdatedView );
 							}
+						};
+
+						scope.handleListClick = function handleListClick( $event ) {
+							// When the list scrollbar is clicked, this can cause the list to lose focus.
+							// Preventing the default behavior here has no undesired effects, it just stops
+							// the input from losing focus.
+							$event.preventDefault();
+							return false;
 						};
 
 						/**
@@ -468,7 +548,12 @@
 						 */
 						scope.select = function( timestamp, elementIndex ) {
 							// Construct a moment instance from the UNIX offset.
-							var time = moment( timestamp );
+							var time;
+							if( moment.tz ) {
+								time = moment( timestamp ).tz( scope.reference.tz() );
+							} else {
+								time = moment( timestamp );
+							}
 							// Format the time to store it in the input box.
 							scope.time = time.format( scope.format );
 
@@ -486,7 +571,7 @@
 							} else {
 								scope.ngModel.add( scope.interval );
 								scope.ngModel = scope.ensureTimeIsWithinBounds( scope.ngModel );
-								scope.time = scope.ngModel.format( scope.format );
+								scope.time    = scope.ngModel.format( scope.format );
 							}
 							scope.activeIndex = Math.min( scope.largestPossibleIndex, scope.activeIndex + 1 );
 						};
@@ -498,7 +583,7 @@
 							} else {
 								scope.ngModel.subtract( scope.interval );
 								scope.ngModel = scope.ensureTimeIsWithinBounds( scope.ngModel );
-								scope.time = scope.ngModel.format( scope.format );
+								scope.time    = scope.ngModel.format( scope.format );
 							}
 							scope.activeIndex = Math.max( 0, scope.activeIndex - 1 );
 						};
@@ -509,7 +594,14 @@
 						scope.update = function() {
 							var timeValid = checkTimeValueValid( scope.time ) && checkTimeValueWithinBounds( scope.time );
 							if( timeValid ) {
-								var newTime = moment( scope.time, scope.format );
+								var newTime;
+								if( moment.tz ) {
+									newTime = moment.tz( scope.time,
+										scope.format,
+										scope.reference.tz() );
+								} else {
+									newTime = moment( scope.time, scope.format );
+								}
 								newTime = scope.constrainToReference( newTime );
 								controller.$setViewValue( newTime );
 							}
@@ -521,7 +613,7 @@
 									// Enter
 									if( scope.modelPreview ) {
 										scope.ngModel = scope.modelPreview;
-										scope.isOpen = false;
+										scope.isOpen  = false;
 									}
 									break;
 								case 27:
@@ -533,14 +625,16 @@
 									openPopup();
 									scope.modelPreview.subtract( scope.largeInterval );
 									scope.modelPreview = scope.ensureTimeIsWithinBounds( scope.modelPreview );
-									scope.activeIndex = Math.max( 0, scope.activeIndex - scope.largeIntervalIndexJump );
+									scope.activeIndex  = Math.max( 0,
+										scope.activeIndex - scope.largeIntervalIndexJump );
 									break;
 								case 34:
 									// Page down
 									openPopup();
 									scope.modelPreview.add( scope.largeInterval );
 									scope.modelPreview = scope.ensureTimeIsWithinBounds( scope.modelPreview );
-									scope.activeIndex = Math.min( scope.largestPossibleIndex, scope.activeIndex + scope.largeIntervalIndexJump );
+									scope.activeIndex  = Math.min( scope.largestPossibleIndex,
+										scope.activeIndex + scope.largeIntervalIndexJump );
 									break;
 								case 38:
 									// Up arrow
@@ -554,7 +648,7 @@
 									break;
 								default:
 							}
-							ensureUpdatedView();
+							$timeout( ensureUpdatedView );
 						};
 
 						/**
@@ -578,7 +672,7 @@
 							$( inputElement ).focus();
 						};
 
-						var inputElement = element.find( "input" );
+						var inputElement     = element.find( "input" );
 						var popupListElement = element.find( "ul" );
 
 						/**
@@ -587,6 +681,7 @@
 						inputElement.bind( "focus", function() {
 							// Without delay the popup can glitch close itself instantly after being opened.
 							$timeout( openPopup, 150 );
+							scope.isFocused = true;
 						} );
 
 						/**
@@ -603,11 +698,28 @@
 									validateView();
 								}
 							}, 150 );
+							scope.isFocused = false;
 						} );
 
 						popupListElement.bind( "mousedown", function( event ) {
 							event.preventDefault();
 						} );
+
+						if( typeof Hamster === "function" ) {
+							Hamster( inputElement[ 0 ] ).wheel( function( event, delta, deltaX, deltaY ) {
+								if( scope.isFocused ) {
+									event.preventDefault();
+
+									scope.activeIndex -= delta;
+									scope.activeIndex = Math.min( scope.largestPossibleIndex,
+										Math.max( 0, scope.activeIndex ) );
+
+									scope.select( scope.dropDownOptions[ scope.activeIndex ], scope.activeIndex );
+									$timeout( ensureUpdatedView );
+								}
+							} );
+						}
+
 					}
 				};
 			}

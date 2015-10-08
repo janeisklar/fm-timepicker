@@ -35,6 +35,10 @@
 
 						<p class="text-danger ng-cloak" ng-show="form.time.$error.interval">The selected time does not lie on a
 							time value that would fit the given time interval.</p>
+
+						<p class="text-danger ng-cloak" ng-show="form.date.$error.start">The given start time is invalid.</p>
+
+						<p class="text-danger ng-cloak" ng-show="form.date.$error.end">The given end time is invalid.</p>
 					</div>
 				</div>
 
@@ -160,6 +164,7 @@
 <script src="//code.jquery.com/jquery-2.1.1.min.js"></script>
 <script src="//cdnjs.cloudflare.com/ajax/libs/moment.js/2.6.0/moment.min.js"></script>
 <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
+<script src="hamster.js"></script>
 <script src="fm-timepicker.js"></script>
 <script>
 	angular.module( "demo", [ "fm.components" ] ).
