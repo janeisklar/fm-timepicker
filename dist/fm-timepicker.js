@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2014, HARTWIG Communication & Events
+ * Copyright (C) 2014-2015, HARTWIG Communication & Events GmbH & Co. KG
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
@@ -21,13 +21,15 @@
  *
  * Created: 2014-01-07 15:49
  *
- * @author Oliver Salzburg
- * @copyright Copyright (C) 2015, HARTWIG Communication & Events GmbH & Co. KG
+ * @author Oliver Salzburg <oliver.salzburg@gmail.com>
+ * @copyright Copyright (C) 2014-2015, HARTWIG Communication & Events GmbH & Co. KG
  * @license http://opensource.org/licenses/mit-license.php MIT License
  */
 
 (function() {
 	"use strict";
+
+	/* globals $, angular, Hamster, moment */
 
 	// Declare fmComponents module if it doesn't exist.
 	try {
