@@ -54,8 +54,8 @@
 					return input;
 				}
 
-				start = moment( start );
-				end = moment( end );
+				start    = moment( start );
+				end      = moment( end );
 				interval = interval || moment.duration( 30, "minutes" );
 
 				for( var time = start.clone(); +time <= +end; time.add( interval ) ) {
@@ -74,15 +74,15 @@
 			// Create day of reference
 			$scope.reference = $scope.reference ? moment( $scope.reference ) : moment();
 
-			$scope.style = $scope.style || "dropdown";
-			$scope.isOpen = $scope.isOpen || false;
-			$scope.format = $scope.format || "LT";
-			$scope.startTime = $scope.startTime || moment( $scope.reference ).startOf( "day" );
-			$scope.endTime = $scope.endTime || moment( $scope.reference ).endOf( "day" );
-			$scope.interval = $scope.interval || moment.duration( 30, "minutes" );
+			$scope.style         = $scope.style || "dropdown";
+			$scope.isOpen        = $scope.isOpen || false;
+			$scope.format        = $scope.format || "LT";
+			$scope.startTime     = $scope.startTime || moment( $scope.reference ).startOf( "day" );
+			$scope.endTime       = $scope.endTime || moment( $scope.reference ).endOf( "day" );
+			$scope.interval      = $scope.interval || moment.duration( 30, "minutes" );
 			$scope.largeInterval = $scope.largeInterval || moment.duration( 60, "minutes" );
-			$scope.strict = $scope.strict || false;
-			$scope.btnClass = $scope.btnClass || "btn-default";
+			$scope.strict        = $scope.strict || false;
+			$scope.btnClass      = $scope.btnClass || "btn-default";
 
 			if( moment.tz ) {
 				$scope.startTime.tz( $scope.reference.tz() );
@@ -91,7 +91,7 @@
 
 			if( $scope.strict ) {
 				// Round the model value up to the next valid time that fits the configured interval.
-				var modelMilliseconds = $scope.ngModel.valueOf();
+				var modelMilliseconds    = $scope.ngModel.valueOf();
 				var intervalMilliseconds = $scope.interval.asMilliseconds();
 
 				modelMilliseconds -= modelMilliseconds % intervalMilliseconds;
@@ -161,6 +161,10 @@
 			 */
 			$scope.findActiveIndex = function( model ) {
 				$scope.activeIndex = 0;
+				if( !model ) {
+					return;
+				}
+
 				// We step through each possible value instead of calculating the index directly,
 				// to make sure we account for DST changes in the reference day.
 				for( var time = $scope.startTime.clone(); +time <= +$scope.endTime; time.add( $scope.interval ), ++$scope.activeIndex ) {
@@ -190,29 +194,32 @@
 			// Check the supplied interval for validity.
 			$scope.$watch( "interval", function( newInterval, oldInterval ) {
 				if( newInterval.asMilliseconds() < 1 ) {
-					console.error( "[fm-timepicker] Error: Supplied interval length is smaller than 1ms! Reverting to default." );
+					console.error(
+						"[fm-timepicker] Error: Supplied interval length is smaller than 1ms! Reverting to default." );
 					$scope.interval = moment.duration( 30, "minutes" );
 				}
 			} );
 			// Check the supplied large interval for validity.
 			$scope.$watch( "largeInterval", function( newInterval, oldInterval ) {
 				if( newInterval.asMilliseconds() < 10 ) {
-					console.error( "[fm-timepicker] Error: Supplied large interval length is smaller than 10ms! Reverting to default." );
+					console.error(
+						"[fm-timepicker] Error: Supplied large interval length is smaller than 10ms! Reverting to default." );
 					$scope.largeInterval = moment.duration( 60, "minutes" );
 				}
 			} );
 			// Watch the given interval values.
 			$scope.$watchCollection( "[interval,largeInterval]", function( newValues ) {
 				// Pick array apart.
-				var newInterval = newValues[ 0 ];
+				var newInterval      = newValues[ 0 ];
 				var newLargeInterval = newValues[ 1 ];
 				// Get millisecond values for the intervals.
-				var newIntervalMilliseconds = newInterval.asMilliseconds();
+				var newIntervalMilliseconds      = newInterval.asMilliseconds();
 				var newLargeIntervalMilliseconds = newLargeInterval.asMilliseconds();
 				// Check if the large interval is a multiple of the interval.
 				if( 0 !== ( newLargeIntervalMilliseconds % newIntervalMilliseconds ) ) {
-					console.warn( "[fm-timepicker] Warning: Large interval is not a multiple of interval! Using internally computed value instead." );
-					$scope.largeInterval = moment.duration( newIntervalMilliseconds * 5 );
+					console.warn(
+						"[fm-timepicker] Warning: Large interval is not a multiple of interval! Using internally computed value instead." );
+					$scope.largeInterval         = moment.duration( newIntervalMilliseconds * 5 );
 					newLargeIntervalMilliseconds = $scope.largeInterval.asMilliseconds();
 				}
 				// Calculate how many indices we need to skip for a large jump through our collection.
@@ -242,37 +249,37 @@
 			"$timeout", function( $timeout ) {
 				return {
 					template   : "<div>" +
-					"  <div class='input-group'>" +
-					"    <span class='input-group-btn' ng-if='style==\"sequential\"'>" +
-					"      <button type='button' class='btn {{btnClass}}' ng-click='decrement()' ng-disabled='activeIndex==0'>" +
-					"        <span class='glyphicon glyphicon-minus'></span>" +
-					"      </button>" +
-					"    </span>" +
-					"    <input type='text' class='form-control' ng-model='time' ng-keyup='handleKeyboardInput($event)' ng-change='update()'>" +
-					"    <span class='input-group-btn'>" +
-					"      <button type='button' class='btn {{btnClass}}' ng-if='style==\"sequential\"' ng-click='increment()' ng-disabled='activeIndex==largestPossibleIndex'>" +
-					"        <span class='glyphicon glyphicon-plus'></span>" +
-					"      </button>" +
-					"      <button type='button' class='btn {{btnClass}}' ng-if='style==\"dropdown\"' ng-class='{active:isOpen}' fm-timepicker-toggle>" +
-					"        <span class='glyphicon glyphicon-time'></span>" +
-					"      </button>" +
-					"    </span>" +
-					"  </div>" +
-					"  <div class='dropdown' ng-if='style==\"dropdown\"' ng-class='{open:isOpen}'>" +
-					"    <ul class='dropdown-menu form-control' style='height:auto; max-height:160px; overflow-y:scroll;' ng-mousedown=\"handleListClick($event)\">" +
-						// Fill an empty array with time values between start and end time with the given interval, then iterate over that array.
-					"      <li ng-repeat='time in ( $parent.dropDownOptions = ( [] | fmTimeInterval:startTime:endTime:interval ) )' ng-click='select(time,$index)' ng-class='{active:(activeIndex==$index)}'>" +
-						// For each item, check if it is the last item. If it is, communicate the index to a method in the scope.
-					"        {{$last?largestPossibleIndexIs($index):angular.noop()}}" +
-						// Render a link into the list item, with the formatted time value.
-					"        <a href='#' ng-click='preventDefault($event)'>{{time|fmTimeFormat:format}}</a>" +
-					"      </li>" +
-					"    </ul>" +
-					"  </div>" +
-					"</div>",
-					replace    : true,
-					restrict   : "E",
-					scope      : {
+					           "  <div class='input-group'>" +
+					           "    <span class='input-group-btn' ng-if='style==\"sequential\"'>" +
+					           "      <button type='button' class='btn {{btnClass}}' ng-click='decrement()' ng-disabled='activeIndex==0'>" +
+					           "        <span class='glyphicon glyphicon-minus'></span>" +
+					           "      </button>" +
+					           "    </span>" +
+					           "    <input type='text' class='form-control' ng-model='time' ng-keyup='handleKeyboardInput($event)' ng-change='update()'>" +
+					           "    <span class='input-group-btn'>" +
+					           "      <button type='button' class='btn {{btnClass}}' ng-if='style==\"sequential\"' ng-click='increment()' ng-disabled='activeIndex==largestPossibleIndex'>" +
+					           "        <span class='glyphicon glyphicon-plus'></span>" +
+					           "      </button>" +
+					           "      <button type='button' class='btn {{btnClass}}' ng-if='style==\"dropdown\"' ng-class='{active:isOpen}' fm-timepicker-toggle>" +
+					           "        <span class='glyphicon glyphicon-time'></span>" +
+					           "      </button>" +
+					           "    </span>" +
+					           "  </div>" +
+					           "  <div class='dropdown' ng-if='style==\"dropdown\"' ng-class='{open:isOpen}'>" +
+					           "    <ul class='dropdown-menu form-control' style='height:auto; max-height:160px; overflow-y:scroll;' ng-mousedown=\"handleListClick($event)\">" +
+					           // Fill an empty array with time values between start and end time with the given interval, then iterate over that array.
+					           "      <li ng-repeat='time in ( $parent.dropDownOptions = ( [] | fmTimeInterval:startTime:endTime:interval ) )' ng-click='select(time,$index)' ng-class='{active:(activeIndex==$index)}'>" +
+					           // For each item, check if it is the last item. If it is, communicate the index to a method in the scope.
+					           "        {{$last?largestPossibleIndexIs($index):angular.noop()}}" +
+					           // Render a link into the list item, with the formatted time value.
+					           "        <a href='#' ng-click='preventDefault($event)'>{{time|fmTimeFormat:format}}</a>" +
+					           "      </li>" +
+					           "    </ul>" +
+					           "  </div>" +
+					           "</div>",
+					replace  : true,
+					restrict : "E",
+					scope    : {
 						ngModel       : "=",
 						format        : "=?",
 						startTime     : "=?",
@@ -309,7 +316,8 @@
 							// Check if the given time is valid.
 							var timeValid = checkTimeValueValid( time );
 							if( scope.strict ) {
-								timeValid = timeValid && checkTimeValueWithinBounds( time ) && checkTimeValueFitsInterval( time );
+								timeValid = timeValid && checkTimeValueWithinBounds( time ) && checkTimeValueFitsInterval(
+										time );
 							}
 
 							if( timeValid ) {
@@ -339,7 +347,8 @@
 							// Check if the string in the input box represents a valid date according to the rules set through parameters in our scope.
 							var timeValid = checkTimeValueValid( scope.time );
 							if( scope.strict ) {
-								timeValid = timeValid && checkTimeValueWithinBounds( scope.time ) && checkTimeValueFitsInterval( scope.time );
+								timeValid = timeValid && checkTimeValueWithinBounds( scope.time ) && checkTimeValueFitsInterval(
+										scope.time );
 							}
 
 							if( timeValid ) {
@@ -479,7 +488,7 @@
 							// Find the selected list item.
 							var selectedListElement = $( "li.active", popupListElement );
 							// Retrieve offset from the top and height of the list element.
-							var top = selectedListElement.length ? selectedListElement.position().top : 0;
+							var top    = selectedListElement.length ? selectedListElement.position().top : 0;
 							var height = selectedListElement.length ? selectedListElement.outerHeight( true ) : 0;
 							// Scroll the list to bring the selected list element into the view.
 							$( popupListElement ).scrollTop( top - height );
@@ -490,7 +499,7 @@
 						 */
 						function openPopup() {
 							if( !scope.isOpen ) {
-								scope.isOpen = true;
+								scope.isOpen       = true;
 								scope.modelPreview = scope.ngModel ? scope.ngModel.clone() : scope.startTime.clone();
 								$timeout( ensureUpdatedView );
 							}
@@ -553,7 +562,7 @@
 							} else {
 								scope.ngModel.add( scope.interval );
 								scope.ngModel = scope.ensureTimeIsWithinBounds( scope.ngModel );
-								scope.time = scope.ngModel.format( scope.format );
+								scope.time    = scope.ngModel.format( scope.format );
 							}
 							scope.activeIndex = Math.min( scope.largestPossibleIndex, scope.activeIndex + 1 );
 						};
@@ -565,7 +574,7 @@
 							} else {
 								scope.ngModel.subtract( scope.interval );
 								scope.ngModel = scope.ensureTimeIsWithinBounds( scope.ngModel );
-								scope.time = scope.ngModel.format( scope.format );
+								scope.time    = scope.ngModel.format( scope.format );
 							}
 							scope.activeIndex = Math.max( 0, scope.activeIndex - 1 );
 						};
@@ -595,7 +604,7 @@
 									// Enter
 									if( scope.modelPreview ) {
 										scope.ngModel = scope.modelPreview;
-										scope.isOpen = false;
+										scope.isOpen  = false;
 									}
 									break;
 								case 27:
@@ -607,14 +616,15 @@
 									openPopup();
 									scope.modelPreview.subtract( scope.largeInterval );
 									scope.modelPreview = scope.ensureTimeIsWithinBounds( scope.modelPreview );
-									scope.activeIndex = Math.max( 0, scope.activeIndex - scope.largeIntervalIndexJump );
+									scope.activeIndex  = Math.max( 0,
+										scope.activeIndex - scope.largeIntervalIndexJump );
 									break;
 								case 34:
 									// Page down
 									openPopup();
 									scope.modelPreview.add( scope.largeInterval );
 									scope.modelPreview = scope.ensureTimeIsWithinBounds( scope.modelPreview );
-									scope.activeIndex = Math.min( scope.largestPossibleIndex,
+									scope.activeIndex  = Math.min( scope.largestPossibleIndex,
 										scope.activeIndex + scope.largeIntervalIndexJump );
 									break;
 								case 38:
@@ -653,7 +663,7 @@
 							$( inputElement ).focus();
 						};
 
-						var inputElement = element.find( "input" );
+						var inputElement     = element.find( "input" );
 						var popupListElement = element.find( "ul" );
 
 						/**

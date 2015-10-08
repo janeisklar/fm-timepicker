@@ -161,6 +161,10 @@
 			 */
 			$scope.findActiveIndex = function( model ) {
 				$scope.activeIndex = 0;
+				if( !model ) {
+					return;
+				}
+
 				// We step through each possible value instead of calculating the index directly,
 				// to make sure we account for DST changes in the reference day.
 				for( var time = $scope.startTime.clone(); +time <= +$scope.endTime; time.add( $scope.interval ), ++$scope.activeIndex ) {
