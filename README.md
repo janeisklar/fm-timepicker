@@ -1,7 +1,7 @@
 fm-timepicker
 =============
 
-[Demo site](http://hartwig-at.github.io/fm-timepicker/demo.html)
+[Demo site](http://fairmanager.github.io/fm-timepicker/demo.html)
 
 A simple time picker for **AngularJS** based on **Bootstrap** and **Moment**.
 

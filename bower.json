@@ -1,8 +1,8 @@
 {
   "name": "fm-timepicker",
   "description": "FairManager Time Picker Component",
-  "version": "3.0.4",
-  "homepage": "https://github.com/hartwig-at/fm-timepicker",
+  "version": "3.0.5",
+  "homepage": "https://github.com/fairmanager/fm-timepicker",
   "authors": [
     "Oliver Salzburg <oliver.salzburg@gmail.com>"
   ],
@@ -12,7 +12,7 @@
   "dependencies": {
     "angular": ">=1.2.7",
     "bootstrap": ">=3.0.3",
-    "hamsterjs": "~1.0.4",
+    "hamsterjs": "^1.1.0",
     "moment": ">=2.5.0",
     "jquery": ">=2.0.3"
   },
