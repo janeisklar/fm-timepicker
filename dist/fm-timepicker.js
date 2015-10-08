@@ -336,6 +336,8 @@
 							controller.$setValidity( "time", to );
 							controller.$setValidity( "bounds", to );
 							controller.$setValidity( "interval", to );
+							controller.$setValidity( "start", to );
+							controller.$setValidity( "end", to );
 						}
 
 						/**
@@ -349,6 +351,13 @@
 							if( scope.strict ) {
 								timeValid = timeValid && checkTimeValueWithinBounds( scope.time ) && checkTimeValueFitsInterval(
 										scope.time );
+							}
+
+							if( !scope.startDate.isValid() ) {
+								controller.$setValidity( "start", false );
+							}
+							if( !scope.endDate.isValid() ) {
+								controller.$setValidity( "end", false );
 							}
 
 							if( timeValid ) {
