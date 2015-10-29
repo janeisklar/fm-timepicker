@@ -1,7 +1,7 @@
 {
   "name": "fm-timepicker",
   "description": "FairManager Time Picker Component",
-  "version": "3.0.5",
+  "version": "3.0.6",
   "homepage": "https://github.com/fairmanager/fm-timepicker",
   "authors": [
     "Oliver Salzburg <oliver.salzburg@gmail.com>"
