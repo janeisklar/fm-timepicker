@@ -353,10 +353,10 @@
 										scope.time );
 							}
 
-							if( !scope.startDate.isValid() ) {
+							if( !scope.startTime.isValid() ) {
 								controller.$setValidity( "start", false );
 							}
-							if( !scope.endDate.isValid() ) {
+							if( !scope.endTime.isValid() ) {
 								controller.$setValidity( "end", false );
 							}
 
